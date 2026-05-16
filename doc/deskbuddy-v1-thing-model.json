@@ -1,0 +1,753 @@
+{
+  "id": "2",
+  "productKey": "deskbuddy-v1",
+  "productName": "DeskBuddy 显示型桌宠",
+  "description": "基于 ESP32 的显示型桌宠，支持亮度调节、情绪切换、本地天气展示、配置网页与 MQTT 接入",
+  "icon": null,
+  "iconKey": null,
+  "status": "ACTIVE",
+  "properties": [
+    {
+      "id": "1",
+      "identifier": "rssi",
+      "name": "信号强度",
+      "dataType": "int",
+      "specs": {
+        "max": 0,
+        "min": -100,
+        "unit": "dBm"
+      },
+      "accessMode": "r",
+      "required": false,
+      "description": "WiFi 信号强度",
+      "sortOrder": 1
+    },
+    {
+      "id": "2",
+      "identifier": "version",
+      "name": "固件版本",
+      "dataType": "string",
+      "specs": {
+        "maxLength": 32
+      },
+      "accessMode": "r",
+      "required": false,
+      "description": "当前固件版本号",
+      "sortOrder": 2
+    },
+    {
+      "id": "3",
+      "identifier": "wifiConnected",
+      "name": "WiFi 连接状态",
+      "dataType": "bool",
+      "specs": {},
+      "accessMode": "r",
+      "required": false,
+      "description": "是否已连接外部 WiFi",
+      "sortOrder": 3
+    },
+    {
+      "id": "4",
+      "identifier": "configPortalActive",
+      "name": "配置门户状态",
+      "dataType": "bool",
+      "specs": {},
+      "accessMode": "r",
+      "required": false,
+      "description": "是否处于本地配置网页模式",
+      "sortOrder": 4
+    },
+    {
+      "id": "6",
+      "identifier": "brightness",
+      "name": "屏幕亮度",
+      "dataType": "int",
+      "specs": {
+        "max": 100,
+        "min": 0,
+        "unit": "%"
+      },
+      "accessMode": "rw",
+      "required": false,
+      "description": "屏幕亮度设置",
+      "sortOrder": 6
+    },
+    {
+      "id": "7",
+      "identifier": "currentPage",
+      "name": "当前页面",
+      "dataType": "enum",
+      "specs": {
+        "values": [
+          {
+            "name": "表情页",
+            "value": "emo"
+          },
+          {
+            "name": "时钟页",
+            "value": "clock"
+          },
+          {
+            "name": "天气页",
+            "value": "weather"
+          },
+          {
+            "name": "世界时钟页",
+            "value": "worldClock"
+          },
+          {
+            "name": "天气预报页",
+            "value": "forecast"
+          }
+        ]
+      },
+      "accessMode": "r",
+      "required": false,
+      "description": "当前显示页面",
+      "sortOrder": 7
+    },
+    {
+      "id": "8",
+      "identifier": "currentMood",
+      "name": "当前情绪",
+      "dataType": "enum",
+      "specs": {
+        "values": [
+          {
+            "name": "普通",
+            "value": "normal"
+          },
+          {
+            "name": "开心",
+            "value": "happy"
+          },
+          {
+            "name": "伤心",
+            "value": "sad"
+          },
+          {
+            "name": "生气",
+            "value": "angry"
+          },
+          {
+            "name": "困倦",
+            "value": "sleepy"
+          },
+          {
+            "name": "兴奋",
+            "value": "excited"
+          },
+          {
+            "name": "喜爱",
+            "value": "love"
+          },
+          {
+            "name": "惊讶",
+            "value": "surprised"
+          },
+          {
+            "name": "疑惑",
+            "value": "suspicious"
+          }
+        ]
+      },
+      "accessMode": "r",
+      "required": false,
+      "description": "当前表情情绪",
+      "sortOrder": 8
+    },
+    {
+      "id": "9",
+      "identifier": "city",
+      "name": "位置名称",
+      "dataType": "string",
+      "specs": {
+        "maxLength": 64
+      },
+      "accessMode": "r",
+      "required": false,
+      "description": "本地显示使用的位置名称，可为空",
+      "sortOrder": 9
+    },
+    {
+      "id": "10",
+      "identifier": "latitude",
+      "name": "纬度",
+      "dataType": "float",
+      "specs": {
+        "max": 90,
+        "min": -90
+      },
+      "accessMode": "r",
+      "required": false,
+      "description": "天气请求使用的纬度",
+      "sortOrder": 10
+    },
+    {
+      "id": "11",
+      "identifier": "longitude",
+      "name": "经度",
+      "dataType": "float",
+      "specs": {
+        "max": 180,
+        "min": -180
+      },
+      "accessMode": "r",
+      "required": false,
+      "description": "天气请求使用的经度",
+      "sortOrder": 11
+    },
+    {
+      "id": "12",
+      "identifier": "timezone",
+      "name": "时区",
+      "dataType": "string",
+      "specs": {
+        "maxLength": 64
+      },
+      "accessMode": "r",
+      "required": false,
+      "description": "设备当前时区",
+      "sortOrder": 12
+    },
+    {
+      "id": "13",
+      "identifier": "weatherMain",
+      "name": "天气主状态",
+      "dataType": "string",
+      "specs": {
+        "maxLength": 32
+      },
+      "accessMode": "r",
+      "required": false,
+      "description": "天气主状态，例如 Clear、Clouds、Rain",
+      "sortOrder": 13
+    },
+    {
+      "id": "14",
+      "identifier": "weatherDesc",
+      "name": "天气描述",
+      "dataType": "string",
+      "specs": {
+        "maxLength": 64
+      },
+      "accessMode": "r",
+      "required": false,
+      "description": "天气描述文本",
+      "sortOrder": 14
+    },
+    {
+      "id": "15",
+      "identifier": "temperature",
+      "name": "当前温度",
+      "dataType": "float",
+      "specs": {
+        "max": 80,
+        "min": -50,
+        "unit": "°C"
+      },
+      "accessMode": "r",
+      "required": false,
+      "description": "当前温度",
+      "sortOrder": 15
+    },
+    {
+      "id": "16",
+      "identifier": "feelsLike",
+      "name": "体感温度",
+      "dataType": "float",
+      "specs": {
+        "max": 80,
+        "min": -50,
+        "unit": "°C"
+      },
+      "accessMode": "r",
+      "required": false,
+      "description": "体感温度",
+      "sortOrder": 16
+    },
+    {
+      "id": "17",
+      "identifier": "humidity",
+      "name": "湿度",
+      "dataType": "int",
+      "specs": {
+        "max": 100,
+        "min": 0,
+        "unit": "%"
+      },
+      "accessMode": "r",
+      "required": false,
+      "description": "当前湿度",
+      "sortOrder": 17
+    },
+    {
+      "id": "18",
+      "identifier": "weatherReady",
+      "name": "天气数据可用",
+      "dataType": "bool",
+      "specs": {},
+      "accessMode": "r",
+      "required": false,
+      "description": "是否已成功获取当前天气",
+      "sortOrder": 18
+    },
+    {
+      "id": "19",
+      "identifier": "weatherForecast",
+      "name": "未来三天天气预报",
+      "dataType": "object",
+      "specs": {},
+      "accessMode": "r",
+      "required": false,
+      "description": "对象结构，格式为 {\"days\":[...]}",
+      "sortOrder": 19
+    },
+    {
+      "id": "20",
+      "identifier": "weatherTheme",
+      "name": "天气页主题",
+      "dataType": "enum",
+      "specs": {
+        "values": [
+          {
+            "name": "经典",
+            "value": "classic"
+          },
+          {
+            "name": "紧凑",
+            "value": "compact"
+          },
+          {
+            "name": "居中",
+            "value": "centered"
+          },
+          {
+            "name": "仪表盘",
+            "value": "dashboard"
+          },
+          {
+            "name": "杂志",
+            "value": "magazine"
+          }
+        ]
+      },
+      "accessMode": "rw",
+      "required": false,
+      "description": "当前天气页布局主题",
+      "sortOrder": 20
+    }
+  ],
+  "services": [
+    {
+      "id": "1",
+      "identifier": "setEmotion",
+      "name": "设置情绪",
+      "callType": "async",
+      "inputParams": [
+        {
+          "name": "情绪",
+          "specs": {
+            "values": [
+              {
+                "name": "待机",
+                "value": "idle"
+              },
+              {
+                "name": "开心",
+                "value": "happy"
+              },
+              {
+                "name": "伤心",
+                "value": "sad"
+              },
+              {
+                "name": "生气",
+                "value": "angry"
+              },
+              {
+                "name": "困倦",
+                "value": "sleepy"
+              },
+              {
+                "name": "兴奋",
+                "value": "excited"
+              },
+              {
+                "name": "困惑",
+                "value": "confused"
+              }
+            ]
+          },
+          "dataType": "enum",
+          "identifier": "emotion"
+        }
+      ],
+      "outputParams": [],
+      "description": "设置当前显示情绪",
+      "sortOrder": 1
+    },
+    {
+      "id": "2",
+      "identifier": "setBrightness",
+      "name": "设置亮度",
+      "callType": "async",
+      "inputParams": [
+        {
+          "name": "亮度",
+          "specs": {
+            "max": 100,
+            "min": 0,
+            "unit": "%"
+          },
+          "dataType": "int",
+          "identifier": "brightness"
+        }
+      ],
+      "outputParams": [],
+      "description": "设置屏幕亮度",
+      "sortOrder": 2
+    },
+    {
+      "id": "3",
+      "identifier": "setPage",
+      "name": "切换页面",
+      "callType": "async",
+      "inputParams": [
+        {
+          "name": "页面",
+          "specs": {
+            "values": [
+              {
+                "name": "表情页",
+                "value": "emo"
+              },
+              {
+                "name": "时钟页",
+                "value": "clock"
+              },
+              {
+                "name": "天气页",
+                "value": "weather"
+              },
+              {
+                "name": "世界时钟页",
+                "value": "worldClock"
+              },
+              {
+                "name": "天气预报页",
+                "value": "forecast"
+              }
+            ]
+          },
+          "dataType": "enum",
+          "identifier": "page"
+        }
+      ],
+      "outputParams": [],
+      "description": "切换到指定页面",
+      "sortOrder": 3
+    },
+    {
+      "id": "4",
+      "identifier": "setWeatherConfig",
+      "name": "设置天气配置",
+      "callType": "async",
+      "inputParams": [
+        {
+          "name": "位置名称",
+          "specs": {
+            "maxLength": 64
+          },
+          "dataType": "string",
+          "identifier": "city"
+        },
+        {
+          "name": "纬度",
+          "specs": {
+            "max": 90,
+            "min": -90
+          },
+          "dataType": "float",
+          "identifier": "latitude"
+        },
+        {
+          "name": "经度",
+          "specs": {
+            "max": 180,
+            "min": -180
+          },
+          "dataType": "float",
+          "identifier": "longitude"
+        },
+        {
+          "name": "时区",
+          "specs": {
+            "maxLength": 64
+          },
+          "dataType": "string",
+          "identifier": "timezone"
+        }
+      ],
+      "outputParams": [],
+      "description": "更新天气相关配置并立即生效",
+      "sortOrder": 4
+    },
+    {
+      "id": "5",
+      "identifier": "setWeatherTheme",
+      "name": "设置天气主题",
+      "callType": "async",
+      "inputParams": [
+        {
+          "name": "天气主题",
+          "specs": {
+            "values": [
+              {
+                "name": "经典",
+                "value": "classic"
+              },
+              {
+                "name": "紧凑",
+                "value": "compact"
+              },
+              {
+                "name": "居中",
+                "value": "centered"
+              },
+              {
+                "name": "仪表盘",
+                "value": "dashboard"
+              },
+              {
+                "name": "杂志",
+                "value": "magazine"
+              }
+            ]
+          },
+          "dataType": "enum",
+          "identifier": "theme"
+        }
+      ],
+      "outputParams": [],
+      "description": "切换天气页主题并立即生效",
+      "sortOrder": 5
+    },
+    {
+      "id": "6",
+      "identifier": "reboot",
+      "name": "重启设备",
+      "callType": "async",
+      "inputParams": [],
+      "outputParams": [],
+      "description": "重启设备",
+      "sortOrder": 99
+    }
+  ],
+  "events": [
+    {
+      "id": "1",
+      "identifier": "touch",
+      "name": "触摸事件",
+      "eventType": "info",
+      "outputParams": [
+        {
+          "name": "按压类型",
+          "specs": {
+            "values": [
+              {
+                "name": "短按",
+                "value": "short"
+              },
+              {
+                "name": "双击",
+                "value": "double"
+              },
+              {
+                "name": "长按",
+                "value": "long"
+              }
+            ]
+          },
+          "dataType": "enum",
+          "identifier": "pressType"
+        },
+        {
+          "name": "触摸时长",
+          "specs": {
+            "unit": "ms"
+          },
+          "dataType": "int",
+          "identifier": "durationMs"
+        },
+        {
+          "name": "触摸前页面",
+          "specs": {
+            "values": [
+              {
+                "name": "表情页",
+                "value": "emo"
+              },
+              {
+                "name": "时钟页",
+                "value": "clock"
+              },
+              {
+                "name": "天气页",
+                "value": "weather"
+              },
+              {
+                "name": "世界时钟页",
+                "value": "worldClock"
+              },
+              {
+                "name": "天气预报页",
+                "value": "forecast"
+              }
+            ]
+          },
+          "dataType": "enum",
+          "identifier": "pageBefore"
+        },
+        {
+          "name": "触摸后页面",
+          "specs": {
+            "values": [
+              {
+                "name": "表情页",
+                "value": "emo"
+              },
+              {
+                "name": "时钟页",
+                "value": "clock"
+              },
+              {
+                "name": "天气页",
+                "value": "weather"
+              },
+              {
+                "name": "世界时钟页",
+                "value": "worldClock"
+              },
+              {
+                "name": "天气预报页",
+                "value": "forecast"
+              }
+            ]
+          },
+          "dataType": "enum",
+          "identifier": "pageAfter"
+        }
+      ],
+      "description": "用户触摸交互事件",
+      "sortOrder": 1
+    },
+    {
+      "id": "2",
+      "identifier": "configPortalEntered",
+      "name": "进入配置门户",
+      "eventType": "info",
+      "outputParams": [
+        {
+          "name": "进入原因",
+          "specs": {
+            "values": [
+              {
+                "name": "开机长按",
+                "value": "boot_hold"
+              },
+              {
+                "name": "WiFi 连接失败",
+                "value": "wifi_connect_failed"
+              },
+              {
+                "name": "缺少 WiFi 配置",
+                "value": "missing_wifi_config"
+              }
+            ]
+          },
+          "dataType": "enum",
+          "identifier": "reason"
+        }
+      ],
+      "description": "设备进入本地配置网页模式",
+      "sortOrder": 2
+    },
+    {
+      "id": "3",
+      "identifier": "wifiConnectFailed",
+      "name": "WiFi 连接失败",
+      "eventType": "alert",
+      "outputParams": [
+        {
+          "name": "WiFi 名称",
+          "specs": {
+            "maxLength": 64
+          },
+          "dataType": "string",
+          "identifier": "ssid"
+        },
+        {
+          "name": "失败原因码",
+          "specs": {},
+          "dataType": "int",
+          "identifier": "reason"
+        },
+        {
+          "name": "重试次数",
+          "specs": {
+            "min": 0,
+            "max": 1000
+          },
+          "dataType": "int",
+          "identifier": "retryCount"
+        }
+      ],
+      "description": "外部 WiFi 连接失败事件",
+      "sortOrder": 3
+    },
+    {
+      "id": "4",
+      "identifier": "weatherRefreshFailed",
+      "name": "天气刷新失败",
+      "eventType": "alert",
+      "outputParams": [
+        {
+          "name": "失败阶段",
+          "specs": {
+            "values": [
+              {
+                "name": "请求失败",
+                "value": "request"
+              },
+              {
+                "name": "响应失败",
+                "value": "response"
+              },
+              {
+                "name": "解析失败",
+                "value": "parse"
+              },
+              {
+                "name": "请求超时",
+                "value": "timeout"
+              }
+            ]
+          },
+          "dataType": "enum",
+          "identifier": "stage"
+        },
+        {
+          "name": "状态码",
+          "specs": {},
+          "dataType": "int",
+          "identifier": "statusCode"
+        }
+      ],
+      "description": "本地天气刷新失败事件",
+      "sortOrder": 4
+    }
+  ],
+  "createdAt": null,
+  "updatedAt": null
+}

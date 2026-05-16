@@ -1,0 +1,437 @@
+{
+  "id" : "1",
+  "productKey" : "deskpet-v1",
+  "productName" : "桌宠机器人V1",
+  "description" : "第一代桌宠机器人，支持移动、表情、语音等功能",
+  "icon" : null,
+  "iconKey" : null,
+  "status" : "ACTIVE",
+  "properties" : [ {
+    "id" : "1",
+    "identifier" : "battery",
+    "name" : "电池电量",
+    "dataType" : "int",
+    "specs" : {
+      "max" : 100,
+      "min" : 0,
+      "unit" : "%"
+    },
+    "accessMode" : "r",
+    "required" : true,
+    "description" : "设备当前电池电量百分比",
+    "sortOrder" : 1
+  }, {
+    "id" : "2",
+    "identifier" : "rssi",
+    "name" : "信号强度",
+    "dataType" : "int",
+    "specs" : {
+      "max" : 0,
+      "min" : -100,
+      "unit" : "dBm"
+    },
+    "accessMode" : "r",
+    "required" : false,
+    "description" : "WiFi信号强度",
+    "sortOrder" : 2
+  }, {
+    "id" : "3",
+    "identifier" : "brightness",
+    "name" : "屏幕亮度",
+    "dataType" : "int",
+    "specs" : {
+      "max" : 100,
+      "min" : 0,
+      "unit" : "%"
+    },
+    "accessMode" : "rw",
+    "required" : false,
+    "description" : "屏幕亮度设置",
+    "sortOrder" : 3
+  }, {
+    "id" : "4",
+    "identifier" : "volume",
+    "name" : "音量",
+    "dataType" : "int",
+    "specs" : {
+      "max" : 100,
+      "min" : 0,
+      "unit" : "%"
+    },
+    "accessMode" : "rw",
+    "required" : false,
+    "description" : "扬声器音量",
+    "sortOrder" : 4
+  }, {
+    "id" : "5",
+    "identifier" : "version",
+    "name" : "固件版本",
+    "dataType" : "string",
+    "specs" : {
+      "maxLength" : 20
+    },
+    "accessMode" : "r",
+    "required" : false,
+    "description" : "当前固件版本号",
+    "sortOrder" : 5
+  } ],
+  "services" : [ {
+    "id" : "1",
+    "identifier" : "move",
+    "name" : "移动控制",
+    "callType" : "async",
+    "inputParams" : [ {
+      "name" : "方向",
+      "specs" : {
+        "values" : [ {
+          "name" : "向前",
+          "value" : "forward"
+        }, {
+          "name" : "向后",
+          "value" : "backward"
+        }, {
+          "name" : "向左",
+          "value" : "left"
+        }, {
+          "name" : "向右",
+          "value" : "right"
+        }, {
+          "name" : "停",
+          "value" : "stop"
+        } ]
+      },
+      "dataType" : "enum",
+      "identifier" : "direction"
+    }, {
+      "name" : "速度",
+      "specs" : {
+        "max" : 1.0,
+        "min" : 0
+      },
+      "dataType" : "float",
+      "identifier" : "speed"
+    }, {
+      "name" : "持续时间",
+      "specs" : {
+        "max" : 5000,
+        "min" : 0,
+        "unit" : "ms"
+      },
+      "dataType" : "int",
+      "identifier" : "durationMs"
+    } ],
+    "outputParams" : [ ],
+    "description" : "控制桌宠移动",
+    "sortOrder" : 1
+  }, {
+    "id" : "2",
+    "identifier" : "setEmotion",
+    "name" : "设置表情",
+    "callType" : "async",
+    "inputParams" : [ {
+      "name" : "表情",
+      "specs" : {
+        "values" : [ {
+          "name" : "开心",
+          "value" : "happy"
+        }, {
+          "name" : "伤心",
+          "value" : "sad"
+        }, {
+          "name" : "生气",
+          "value" : "angry"
+        }, {
+          "name" : "困倦",
+          "value" : "sleepy"
+        }, {
+          "name" : "待机",
+          "value" : "idle"
+        }, {
+          "name" : "兴奋",
+          "value" : "excited"
+        }, {
+          "name" : "困惑",
+          "value" : "confused"
+        } ]
+      },
+      "dataType" : "enum",
+      "identifier" : "emotion"
+    } ],
+    "outputParams" : [ ],
+    "description" : "设置桌宠表情",
+    "sortOrder" : 2
+  }, {
+    "id" : "3",
+    "identifier" : "speak",
+    "name" : "语音播报",
+    "callType" : "async",
+    "inputParams" : [ {
+      "name" : "文本",
+      "specs" : {
+        "maxLength" : 200
+      },
+      "dataType" : "string",
+      "identifier" : "text"
+    }, {
+      "name" : "音色",
+      "specs" : {
+        "values" : [ {
+          "name" : "默认",
+          "value" : "default"
+        }, {
+          "name" : "可爱",
+          "value" : "cute"
+        }, {
+          "name" : "机器人",
+          "value" : "robot"
+        } ]
+      },
+      "dataType" : "enum",
+      "identifier" : "voice"
+    } ],
+    "outputParams" : [ ],
+    "description" : "播放语音",
+    "sortOrder" : 3
+  }, {
+    "id" : "4",
+    "identifier" : "playAnimation",
+    "name" : "播放动画",
+    "callType" : "async",
+    "inputParams" : [ {
+      "name" : "动画",
+      "specs" : {
+        "values" : [ {
+          "name" : "摇摆",
+          "value" : "wave"
+        }, {
+          "name" : "跳舞",
+          "value" : "dance"
+        }, {
+          "name" : "点头",
+          "value" : "nod"
+        }, {
+          "name" : "摇头",
+          "value" : "shake"
+        }, {
+          "name" : "睡觉",
+          "value" : "sleep"
+        }, {
+          "name" : "醒来",
+          "value" : "wakeup"
+        } ]
+      },
+      "dataType" : "enum",
+      "identifier" : "animation"
+    } ],
+    "outputParams" : [ ],
+    "description" : "播放预设动画",
+    "sortOrder" : 4
+  }, {
+    "id" : "5",
+    "identifier" : "setBrightness",
+    "name" : "设置亮度",
+    "callType" : "async",
+    "inputParams" : [ {
+      "name" : "亮度",
+      "specs" : {
+        "max" : 100,
+        "min" : 0,
+        "unit" : "%"
+      },
+      "dataType" : "int",
+      "identifier" : "brightness"
+    } ],
+    "outputParams" : [ ],
+    "description" : "设置屏幕亮度",
+    "sortOrder" : 5
+  }, {
+    "id" : "6",
+    "identifier" : "setVolume",
+    "name" : "设置音量",
+    "callType" : "async",
+    "inputParams" : [ {
+      "name" : "音量",
+      "specs" : {
+        "max" : 100,
+        "min" : 0,
+        "unit" : "%"
+      },
+      "dataType" : "int",
+      "identifier" : "volume"
+    } ],
+    "outputParams" : [ ],
+    "description" : "设置扬声器音量",
+    "sortOrder" : 6
+  }, {
+    "id" : "7",
+    "identifier" : "reboot",
+    "name" : "重启设备",
+    "callType" : "async",
+    "inputParams" : [ ],
+    "outputParams" : [ ],
+    "description" : "重启设备",
+    "sortOrder" : 99
+  } ],
+  "events" : [ {
+    "id" : "1",
+    "identifier" : "collision",
+    "name" : "碰撞事件",
+    "eventType" : "alert",
+    "outputParams" : [ {
+      "name" : "碰撞方向",
+      "specs" : {
+        "values" : [ {
+          "name" : "前方",
+          "value" : "front"
+        }, {
+          "name" : "后方",
+          "value" : "back"
+        }, {
+          "name" : "左侧",
+          "value" : "left"
+        }, {
+          "name" : "右侧",
+          "value" : "right"
+        } ]
+      },
+      "dataType" : "enum",
+      "identifier" : "direction"
+    }, {
+      "name" : "碰撞强度",
+      "specs" : {
+        "max" : 100,
+        "min" : 0
+      },
+      "dataType" : "int",
+      "identifier" : "intensity"
+    } ],
+    "description" : "设备检测到碰撞",
+    "sortOrder" : 1
+  }, {
+    "id" : "2",
+    "identifier" : "touch",
+    "name" : "触摸事件",
+    "eventType" : "info",
+    "outputParams" : [ {
+      "name" : "触摸位置",
+      "specs" : {
+        "values" : [ {
+          "name" : "头部",
+          "value" : "head"
+        }, {
+          "name" : "背部",
+          "value" : "back"
+        }, {
+          "name" : "腹部",
+          "value" : "belly"
+        } ]
+      },
+      "dataType" : "enum",
+      "identifier" : "position"
+    }, {
+      "name" : "触摸时长",
+      "specs" : {
+        "unit" : "ms"
+      },
+      "dataType" : "int",
+      "identifier" : "duration"
+    } ],
+    "description" : "设备检测到触摸",
+    "sortOrder" : 2
+  }, {
+    "id" : "3",
+    "identifier" : "lowBattery",
+    "name" : "低电量告警",
+    "eventType" : "alert",
+    "outputParams" : [ {
+      "name" : "当前电量",
+      "specs" : {
+        "unit" : "%"
+      },
+      "dataType" : "int",
+      "identifier" : "level"
+    } ],
+    "description" : "电池电量低于阈值",
+    "sortOrder" : 3
+  }, {
+    "id" : "4",
+    "identifier" : "fall",
+    "name" : "跌落事件",
+    "eventType" : "error",
+    "outputParams" : [ {
+      "name" : "跌落高度",
+      "specs" : {
+        "unit" : "cm"
+      },
+      "dataType" : "float",
+      "identifier" : "height"
+    } ],
+    "description" : "设备检测到跌落",
+    "sortOrder" : 4
+  }, {
+    "id" : "5",
+    "identifier" : "voiceWakeup",
+    "name" : "语音唤醒",
+    "eventType" : "info",
+    "outputParams" : [ {
+      "name" : "唤醒词",
+      "dataType" : "string",
+      "identifier" : "keyword"
+    }, {
+      "name" : "置信度",
+      "specs" : {
+        "max" : 1.0,
+        "min" : 0
+      },
+      "dataType" : "float",
+      "identifier" : "confidence"
+    } ],
+    "description" : "语音唤醒触发",
+    "sortOrder" : 5
+  }, {
+    "id" : "6",
+    "identifier" : "buttonPress",
+    "name" : "按键事件",
+    "eventType" : "info",
+    "outputParams" : [ {
+      "name" : "按键",
+      "specs" : {
+        "values" : [ {
+          "name" : "电源键",
+          "value" : "power"
+        }, {
+          "name" : "模式键",
+          "value" : "mode"
+        }, {
+          "name" : "音量+",
+          "value" : "volume_up"
+        }, {
+          "name" : "音量-",
+          "value" : "volume_down"
+        } ]
+      },
+      "dataType" : "enum",
+      "identifier" : "button"
+    }, {
+      "name" : "按压类型",
+      "specs" : {
+        "values" : [ {
+          "name" : "短按",
+          "value" : "short"
+        }, {
+          "name" : "长按",
+          "value" : "long"
+        }, {
+          "name" : "双击",
+          "value" : "double"
+        } ]
+      },
+      "dataType" : "enum",
+      "identifier" : "pressType"
+    } ],
+    "description" : "物理按键被按下",
+    "sortOrder" : 6
+  } ],
+  "createdAt" : "2026-03-14T09:14:57.129711Z",
+  "updatedAt" : null
+}
