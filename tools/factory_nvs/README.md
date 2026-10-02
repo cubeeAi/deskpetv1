@@ -1,6 +1,6 @@
 # 出厂 NVS 生成工具
 
-[generate_factory_nvs_from_excel.py](generate_factory_nvs_from_excel.py)将每台设备的 MQTT 参数转成独立 CSV 和 BIN。需要 Python、openpyxl，以及 ESP-IDF 的 nvs_partition_gen.py。从仓库根运行；此命令会创建包含设备密钥的产物，本次未执行。
+[generate_factory_nvs_from_excel.py](generate_factory_nvs_from_excel.py)将每台设备的 MQTT 参数转成独立 CSV 和 BIN。需要 Python、openpyxl，以及 ESP-IDF 的 nvs_partition_gen.py。从仓库根运行；此命令会创建包含设备密钥的产物，须在授权的隔离工作目录中执行。
 
 ```powershell
 python tools/factory_nvs/generate_factory_nvs_from_excel.py `
