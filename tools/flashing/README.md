@@ -1,149 +1,17 @@
-# Windows 小白一键烧录方案
+# Windows 设备烧录包
 
-这个目录提供一个适合 Windows 用户的“一键烧录包”模板。
-
-## 推荐交付方式
-
-建议按“每台设备一个独立烧录包”交付，目录结构如下：
-
-```text
-Cubee-deskbuddy-v1-000011/
-  一键烧录.bat
-  README-烧录说明.txt
-  firmware/
-    bootloader.bin
-    partition-table.bin
-    app.bin
-    factory_nvs.bin
-  tools/
-    runtime/
-      Scripts/
-        python.exe
-```
-
-## 固件地址
-
-当前项目基于 `ESP32-C3`，烧录地址按 `build/flash_args` 约定：
-
-- `bootloader.bin` -> `0x0`
-- `partition-table.bin` -> `0x8000`
-- `app.bin` -> `0x10000`
-- `factory_nvs.bin` -> `0xD000`
-
-## 使用方式
-
-1. 把 `flash_package.bat` 复制到烧录包根目录，重命名为 `一键烧录.bat`
-2. 把 `README-烧录说明.txt` 复制到烧录包根目录
-3. 把对应设备的 `factory_nvs.bin` 放到 `firmware/factory_nvs.bin`
-4. 用户双击 `一键烧录.bat`
-
-## 自动打包单台设备
-
-如果你已经有：
-
-- `build/bootloader/bootloader.bin`
-- `build/partition_table/partition-table.bin`
-- `build/deskpetv1.bin`
-- `tools/factory_nvs/output/bin/<device_id>.bin`
-
-可以直接执行：
+工具将同一构建的公共镜像与单台 factory_nvs.bin 配对。入口：[单台打包](package_single_device.py)、[批量打包](package_all_devices.py)、[补充运行时](attach_runtime_to_package.py)。操作从仓库根执行，先完成[出厂 NVS](../factory_nvs/README.md)。
 
 ```powershell
-python tools\flashing\package_single_device.py --device-id deskbuddy-v1-000011
+python tools/flashing/package_single_device.py --device-id deskbuddy-example --factory-bin-dir ./private-output/factory/bin --skip-runtime
+python tools/flashing/package_all_devices.py --prefix deskbuddy- --factory-bin-dir ./private-output/factory/bin --skip-runtime
+python tools/flashing/attach_runtime_to_package.py --device-id deskbuddy-example --python-env C:/Espressif/python-env
 ```
 
-执行后会生成：
+这些占位命令只说明参数，需要实际授权设备的对应 BIN。单台/批量支持 --build-dir（默认 build）、--factory-bin-dir（默认 tools/factory_nvs/output/bin）、--output-dir（默认 tools/flashing/package）、--python-env 和 --skip-runtime。补运行时使用 --package-dir，不是 --output-dir。上述两条打包命令显式消费上一节生成的 private-output/factory/bin；省略参数会读取默认旧目录，打包前核对目录和设备身份，避免混入旧凭据。
 
-```text
-tools/flashing/package/deskbuddy-v1-000011/
-  一键烧录.bat
-  README-烧录说明.txt
-  README-轻量版环境准备.txt
-  设备信息.txt
-  firmware/
-    bootloader.bin
-    partition-table.bin
-    app.bin
-    factory_nvs.bin
-  tools/
-    runtime/
-```
+单台包复制 bootloader/partition-table/deskpetv1 应用和该设备 BIN，生成一键烧录.bat、设备信息、两份说明及 firmware 目录。未指定 skip-runtime 时尝试复制本机 ESP-IDF Python；批量默认一份 _shared_runtime，单台默认 tools/runtime。不能保证复制任意 Python 环境就能在其他 Windows 机器运行，交付前核验 esptool 与依赖。
 
-默认会自动把 `C:\Users\<你>\.espressif\python_env\...` 中的 Python 运行时一起打包进单台设备包，小白机器上无需再安装 Python 或 `esptool`。
+[flash_package.bat](flash_package.bat)优先包内运行时，其次同级共享运行时，再尝试系统 Python。它检查镜像存在、提示串口，最终固定执行 ESP32-C3 write_flash：bootloader 0x0、partition-table 0x8000、factory_nvs 0xD000、app 0x10000，波特率 460800。必须与实际 build/flash_args 及分区配置一致；它不会自动推导新分区地址，也不是 OTA。
 
-## 批量打包所有设备
-
-如果你已经生成了整批 `factory_nvs/output/bin/*.bin`，可以直接执行：
-
-```powershell
-python tools\flashing\package_all_devices.py
-```
-
-执行后会批量生成：
-
-```text
-tools/flashing/package/_shared_runtime/
-tools/flashing/package/deskbuddy-v1-000011/
-tools/flashing/package/deskbuddy-v1-000012/
-tools/flashing/package/deskbuddy-v1-000013/
-...
-```
-
-批量打包默认只复制一份共享 Python 运行时到 `_shared_runtime`，每个设备包里的 `一键烧录.bat` 会优先使用这套共享运行时。
-每个设备目录也会自动包含 `README-轻量版环境准备.txt`，方便需要系统 Python 环境的用户直接查看安装步骤。
-
-如果你想限制设备前缀，也可以加：
-
-```powershell
-python tools\flashing\package_all_devices.py --prefix deskbuddy-v1-
-```
-
-如果你只是想先批量准备所有设备包，不想一开始就复制 Python 运行时，可以这样：
-
-```powershell
-python tools\flashing\package_all_devices.py --skip-runtime
-```
-
-## 后续给单个设备补充运行时
-
-当你准备把某一台设备的烧录包发给用户时，再执行：
-
-```powershell
-python tools\flashing\attach_runtime_to_package.py --device-id deskbuddy-v1-000011
-```
-
-这样会只给这一台设备的目录补充：
-
-```text
-tools/flashing/package/deskbuddy-v1-000011/tools/runtime/
-```
-
-如果你想用指定的 Python 运行时目录，也可以这样：
-
-```powershell
-python tools\flashing\attach_runtime_to_package.py --device-id deskbuddy-v1-000011 --python-env "C:\Users\LiChennan\.espressif\python_env\idf5.5_py3.11_env"
-```
-
-## 依赖
-
-小白环境建议只准备：
-
-- 串口驱动（CH340 或 CP210x，按你的板子实际型号）
-
-如果烧录包中没有 `tools/runtime` 或 `_shared_runtime`，脚本才会 fallback 到系统 Python。
-
-## 轻量版用户环境准备
-
-如果你准备把“轻量版烧录包”发给已经有一定基础的用户，请一并附带：
-
-- [README-轻量版环境准备.txt](C:/Users/LiChennan/esp/deskpet/deskpetv1/tools/flashing/README-轻量版环境准备.txt)
-
-这份说明会指导用户：
-
-- 安装 Python 3.10+
-- 使用 `python -m pip install esptool`
-- 使用 `python -m esptool version` 验证环境
-
-官方参考文档：
-
-- [esptool Installation](https://docs.espressif.com/projects/esptool/en/latest/esp32/installation.html)
+随包说明：[烧录步骤](README-烧录说明.txt)、[轻量环境准备](README-轻量版环境准备.txt)。这两个文件由打包脚本复制，保持路径可用。每个包只给对应设备，避免泄漏或复用 secret。烧录完成再核对启动和设备身份，工具退出成功不能替代硬件、网络与长期稳定性验收。

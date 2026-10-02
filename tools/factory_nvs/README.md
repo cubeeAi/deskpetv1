@@ -1,74 +1,22 @@
-# Cubee Factory NVS 工具说明
+# 出厂 NVS 生成工具
 
-这一组工具用于把 Excel 里的“一机一码”设备信息转换成 ESP32 可烧录的 `factory_nvs.bin`。
-
-## 依赖
-
-- Windows
-- Python 3.11+
-- `openpyxl`
-- 已安装 ESP-IDF，或至少能访问 `nvs_partition_gen.py`
-
-## 输入来源
-
-当前默认适配的 Excel 表头：
-
-- `授权码`
-- `设备SN`
-- `设备密钥`
-- `产品标识`
-
-其中：
-
-- `设备SN` -> `mqtt_device_id`
-- `设备密钥` -> `mqtt_secret`
-- `产品标识` -> `product_key`
-
-## 生成内容
-
-脚本会输出两类文件：
-
-- `output/csv/<device_id>.csv`
-- `output/bin/<device_id>.bin`
-
-CSV 用于审阅，BIN 用于烧录到 `factory_nvs` 分区。
-
-## 典型用法
+[generate_factory_nvs_from_excel.py](generate_factory_nvs_from_excel.py)将每台设备的 MQTT 参数转成独立 CSV 和 BIN。需要 Python、openpyxl，以及 ESP-IDF 的 nvs_partition_gen.py。从仓库根运行；此命令会创建包含设备密钥的产物，须在授权的隔离工作目录中执行。
 
 ```powershell
-python tools\factory_nvs\generate_factory_nvs_from_excel.py `
-  --excel "C:\path\to\licenses-deskbuddy-v1.xlsx" `
-  --mqtt-host "43.153.134.2" `
+python tools/factory_nvs/generate_factory_nvs_from_excel.py `
+  --excel ./private-input/devices.xlsx `
+  --mqtt-host broker.example.invalid `
   --mqtt-port 1883 `
-  --output-dir "tools\factory_nvs\output"
+  --product-key deskbuddy-v1 `
+  --idf-path C:/Espressif/esp-idf `
+  --size 0x2000 `
+  --output-dir ./private-output/factory
 ```
 
-如果 `IDF_PATH` 没有配置，可以显式传入：
+域名和路径是无效/占位示例，必须替换成授权隔离环境。输入读取首个 worksheet，前四列表头严格为授权码、设备SN、设备密钥、产品标识；数据行缺 SN/密钥/产品或产品不匹配会跳过。授权码被读入但不写进 NVS。脚本没有完整重复 SN 防护，同名输出可能覆盖，生成前人工检查唯一性。
 
-```powershell
-python tools\factory_nvs\generate_factory_nvs_from_excel.py `
-  --excel "C:\path\to\licenses-deskbuddy-v1.xlsx" `
-  --idf-path "C:\Espressif\frameworks\esp-idf-v5.5.1"
-```
+参数中 --excel/--mqtt-host 必填，--mqtt-port 默认 1883，--product-key 默认 deskbuddy-v1，--idf-path 默认 IDF_PATH，--size 默认 0x2000，--output-dir 默认 tools/factory_nvs/output。若缺 IDF_PATH 或生成器文件会失败。
 
-## 输出的 NVS 键
+输出 csv/{deviceId}.csv 与 bin/{deviceId}.bin；namespace 为 factory_cfg，写 mqtt_host/mqtt_port/mqtt_device_id/mqtt_secret/product_key。当前固件读取前四项，product_key 仅随产物保留。生成大小必须匹配[分区表](../../partitions_3m_app.csv)，设备身份文件不与公共固件混发。
 
-每台设备的 `factory_nvs.bin` 中会包含这些键：
-
-- `mqtt_host`
-- `mqtt_port`
-- `mqtt_device_id`
-- `mqtt_secret`
-- `product_key`
-
-固件启动时会优先从 `factory_nvs/factory_cfg` 读取这些键；如果读不到，才会 fallback 到编译期默认值。
-
-## 分区要求
-
-当前项目约定：
-
-- 分区名：`factory_nvs`
-- namespace：`factory_cfg`
-- 分区大小：`0x2000`
-
-如果你修改了分区大小，生成脚本里的 `--size` 也要同步调整。
+生成成功只证明工具输出，不证明设备已注册、秘密正确、TLS 或 MQTT 互通。详细流程见[配置与烧录](../../doc/操作/设备配置与烧录.md)。
